@@ -2,7 +2,7 @@ import Calendar from "./Calendar";
 
 export default function SelectDate({ onSelect, selectedDate, onPlan }) {
   return (
-    <div className="border bg-white border-gray-100 rounded-md text-[#323232]">
+    <div className="border bg-white border-gray-100 rounded-md text-graytext">
       <div className="px-6 py-8 border-b border-gray-100">
         <div className="font-semibold text-[18px]">Select a Date to Plan</div>
         <div className="mt-3">

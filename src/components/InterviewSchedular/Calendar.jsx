@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 export default function Calendar({ onChange }) {
   const [startDate, setStartDate] = useState(null);
   const onChangeDate = (date) => {
+    console.log(date)
     setStartDate(date);
     onChange && onChange(date);
   };

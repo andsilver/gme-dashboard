@@ -20,11 +20,13 @@ export default function ({ onPlan }) {
         )}
         {step > 0 && (
           <SelectTime
+            date={date}
             step={step}
             onNext={(v) => {
               setData(v);
               setStep(step + 1);
             }}
+            onPrev={() => setStep(step - 1)}
           />
         )}
       </div>

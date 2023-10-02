@@ -45,6 +45,9 @@ module.exports = {
         warn: {
           DEFAULT: "#EA4B4B",
         },
+        graytext: {
+          DEFAULT: "rgba(50, 50, 50, 0.8)",
+        },
       },
     },
   },
