@@ -1,9 +1,10 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
+import ScheduleItem from "./ScheduleItem";
 
 const TOTAL_SLOTS = 8;
 
-export default function ScheduleList({ data }) {
+export default function ScheduleList({ data, list }) {
   const [rows, setRows] = useState([]);
   const [breakBox, setBreakBox] = useState(null);
   const [mealBox, setMealBox] = useState(null);
@@ -135,6 +136,10 @@ export default function ScheduleList({ data }) {
               </div>
             </div>
           </div>
+        </div>
+      ) : list.length > 0 ? (
+        <div className="mt-6 basis-full flex flex-col gap-4">
+          <ScheduleItem />
         </div>
       ) : (
         <div className="mt-6 basis-full flex flex-col items-center justify-center border-[#D8D8D8] border rounded-md gap-3">

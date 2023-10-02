@@ -1,7 +1,8 @@
 import moment from "moment";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import StepBar from "./StepBar";
 import DatePicker from "react-datepicker";
+import ChangeScheduleDialog from "./ChangeScheduleDialog";
 
 const YesButton = ({ value, onClick }) => (
   <button
@@ -55,7 +56,15 @@ const NoButton = ({ value, onClick }) => (
   </button>
 );
 
-export default function SelectTime({ date, step, onNext, onPrev }) {
+export default function SelectTime({
+  date,
+  step,
+  onNext,
+  onPrev,
+  onAddNew,
+  onChangeDate,
+  onReturn,
+}) {
   const [time, setTime] = useState();
   const [rooms, setRooms] = useState(0);
   const [length, setLength] = useState("");
@@ -66,6 +75,20 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
   const [mealStartTime, setMealStartTime] = useState("");
   const [mealDuration, setMealDuration] = useState("");
   const [editRoomName, setEditRoomName] = useState(true);
+  const [showChangeScheduleModal, setShowChangeScheduleModal] = useState(false);
+
+  const reset = () => {
+    setTime("");
+    setRooms(0);
+    setLength("");
+    setAddBreak(true);
+    setBreakStartTime("");
+    setBreakDuration("");
+    setAddMeal(true);
+    setMealDuration("");
+    setMealStartTime("");
+    setEditRoomName(true);
+  };
 
   const goNext = () => {
     onNext({
@@ -79,7 +102,66 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
       mealStartTime,
       mealDuration,
     });
+    if (step === 7) {
+      reset();
+    }
   };
+
+  const handleAddNew = () => {
+    onAddNew({
+      time,
+      rooms,
+      length,
+      addBreak,
+      breakStartTime,
+      breakDuration,
+      addMeal,
+      mealStartTime,
+      mealDuration,
+      step,
+    });
+    reset();
+    setShowChangeScheduleModal(false);
+  };
+
+  const handleChangeDate = () => {
+    onChangeDate();
+    setShowChangeScheduleModal(false);
+  };
+
+  const nextDisabled = useMemo(() => {
+    if (step === 1 && !time) {
+      return true;
+    }
+
+    if (step === 2 && !rooms) {
+      return true;
+    }
+
+    if (step === 3 && !length) {
+      return true;
+    }
+
+    if (step === 4 && addBreak && (!breakDuration || !breakStartTime)) {
+      return true;
+    }
+
+    if (step === 6 && (!mealDuration || !mealStartTime)) {
+      return true;
+    }
+    return false;
+  }, [
+    step,
+    time,
+    rooms,
+    length,
+    addBreak,
+    breakStartTime,
+    breakDuration,
+    addMeal,
+    mealStartTime,
+    mealDuration,
+  ]);
 
   return (
     <div className="border bg-white border-gray-100 rounded-md text-graytext h-full flex flex-col">
@@ -88,7 +170,18 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
           <span className="font-semibold text-[18px]">
             {moment(date).format("MMMM D")}
           </span>
-          <button className="underline text-[#0032E1]">Change</button>
+          <button
+            className="underline text-[#0032E1]"
+            onClick={() => setShowChangeScheduleModal(true)}
+          >
+            Change
+          </button>
+          <ChangeScheduleDialog
+            show={showChangeScheduleModal}
+            onClose={() => setShowChangeScheduleModal(false)}
+            onAddNew={() => handleAddNew()}
+            onChangeDate={() => handleChangeDate()}
+          />
         </div>
         <div className="mt-3">
           Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam on.
@@ -130,8 +223,14 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
             <div className="gme-timepicker mt-6">
               <DatePicker
                 className="border border-[#DCDCDC] bg-[#F3F3F3] rounded-md px-3 py-4 min-w-[160px]"
-                selected={typeof time === "string" ? "" : time}
-                onChange={(t) => setTime(t)}
+                selected={time ? new Date(time) : ""}
+                onChange={(t) =>
+                  setTime(
+                    moment(date).format("YYYY-MM-DD") +
+                      " " +
+                      moment(t).format("HH:mm a")
+                  )
+                }
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
@@ -240,8 +339,14 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
                     id="breakstart"
                     placeholderText="Enter Time"
                     className="border border-[#DCDCDC] bg-[#F3F3F3] rounded-md w-full px-3 py-4 min-w-[160px]"
-                    selected={breakStartTime}
-                    onChange={(t) => setBreakStartTime(t)}
+                    selected={breakStartTime ? new Date(breakStartTime) : ""}
+                    onChange={(t) =>
+                      setBreakStartTime(
+                        moment(date).format("YYYY-MM-DD") +
+                          " " +
+                          moment(t).format("HH:mm a")
+                      )
+                    }
                     showTimeSelect
                     showTimeSelectOnly
                     timeIntervals={15}
@@ -300,8 +405,14 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
                   id="mealstart"
                   placeholderText="Enter Time"
                   className="border border-[#DCDCDC] bg-[#F3F3F3] rounded-md w-full px-3 py-4 min-w-[160px]"
-                  selected={mealStartTime}
-                  onChange={(t) => setMealStartTime(t)}
+                  selected={mealStartTime ? new Date(mealStartTime) : ""}
+                  onChange={(t) =>
+                    setMealStartTime(
+                      moment(date).format("YYYY-MM-DD") +
+                        " " +
+                        moment(t).format("HH:mm a")
+                    )
+                  }
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={15}
@@ -350,11 +461,11 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
               viewBox="0 0 48 48"
               fill="none"
             >
-              <g clip-path="url(#clip0_2210_7308)">
+              <g clipPath="url(#clip0_2210_7308)">
                 <path
                   d="M12.7996 24.0016L22.3996 32.0016L35.1996 16.0016M23.9996 46.4016C21.058 46.4016 18.1452 45.8222 15.4275 44.6965C12.7098 43.5708 10.2405 41.9208 8.16042 39.8408C6.08039 37.7607 4.43041 35.2914 3.30471 32.5737C2.179 29.856 1.59961 26.9432 1.59961 24.0016C1.59961 21.06 2.179 18.1471 3.30471 15.4295C4.43041 12.7118 6.08039 10.2424 8.16042 8.16237C10.2405 6.08234 12.7098 4.43237 15.4275 3.30666C18.1452 2.18096 21.058 1.60156 23.9996 1.60156C29.9405 1.60156 35.638 3.96156 39.8388 8.16237C44.0396 12.3632 46.3996 18.0607 46.3996 24.0016C46.3996 29.9424 44.0396 35.6399 39.8388 39.8408C35.638 44.0416 29.9405 46.4016 23.9996 46.4016Z"
                   stroke="#249690"
-                  stroke-width="2"
+                  strokeWidth="2"
                 />
               </g>
               <defs>
@@ -370,17 +481,17 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
               Your Interview Day has been Planned. Now, you can see the
               dedicated slots and breaks on the right side.
             </div>
-            <a
-              href="/"
+            <button
+              onClick={onReturn}
               className="text-[#0032E1] font-medium opacity-80 mt-6 underline text-[14px]"
             >
               Return to Interview Home
-            </a>
+            </button>
           </div>
         )}
       </div>
       <div className="pt-16 pb-8 px-8">
-        {step > 0 && (
+        {step > 0 && step < 8 && (
           <button
             className="px-12 rounded-lg py-4 text-white disabled:bg-gray-100 mr-4"
             style={{
@@ -393,10 +504,10 @@ export default function SelectTime({ date, step, onNext, onPrev }) {
         )}
         {step < 8 && (
           <button
-            disabled={!time}
+            disabled={nextDisabled}
             className="px-12 rounded-lg py-4 text-white disabled:bg-gray-100"
             style={{
-              background: time
+              background: !nextDisabled
                 ? "linear-gradient(97deg, #41C1BA 0%, #596173 133.3%)"
                 : "",
             }}
