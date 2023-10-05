@@ -224,13 +224,14 @@ export default function SelectTime({
               <DatePicker
                 className="border border-[#DCDCDC] bg-[#F3F3F3] rounded-md px-3 py-4 min-w-[160px]"
                 selected={time ? new Date(time) : ""}
-                onChange={(t) =>
+                onChange={(t) => {
+                  console.log(t);
                   setTime(
                     moment(date).format("YYYY-MM-DD") +
                       " " +
-                      moment(t).format("HH:mm a")
-                  )
-                }
+                      moment(t).format("hh:mm a")
+                  );
+                }}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={15}
@@ -344,7 +345,7 @@ export default function SelectTime({
                       setBreakStartTime(
                         moment(date).format("YYYY-MM-DD") +
                           " " +
-                          moment(t).format("HH:mm a")
+                          moment(t).format("hh:mm a")
                       )
                     }
                     showTimeSelect
@@ -410,7 +411,7 @@ export default function SelectTime({
                     setMealStartTime(
                       moment(date).format("YYYY-MM-DD") +
                         " " +
-                        moment(t).format("HH:mm a")
+                        moment(t).format("hh:mm a")
                     )
                   }
                   showTimeSelect
